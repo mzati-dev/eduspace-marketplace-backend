@@ -21,45 +21,10 @@ export class PurchasesService {
     private readonly userRepository: Repository<User>,
   ) { }
 
-  // async createPurchase(userId: string, createPurchaseDto: CreatePurchaseDto): Promise<PurchaseResponseDto[]> {
-  //   const user = await this.userRepository.findOne({ where: { id: userId } });
-  //   if (!user) {
-  //     throw new Error('User not found');
-  //   }
 
-  //   const purchases: Purchase[] = [];
-  //   let totalAmount = 0;
-
-  //   // Process each item in the cart
-  //   for (const item of createPurchaseDto.items) {
-  //     const lesson = await this.lessonRepository.findOne({
-  //       where: { id: item.lessonId },
-  //       relations: ['teacher'],
-  //     });
-
-  //     if (!lesson) {
-  //       throw new Error(`Lesson with ID ${item.lessonId} not found`);
-  //     }
-
-  //     const purchase = this.purchaseRepository.create({
-  //       amount: lesson.price,
-  //       user,
-  //       lesson,
-  //     });
-
-  //     purchases.push(purchase);
-  //     totalAmount += lesson.price;
-  //   }
-
-  //   // Save all purchases in a transaction
-  //   const savedPurchases = await this.purchaseRepository.save(purchases);
-
-  //   return savedPurchases.map(purchase => new PurchaseResponseDto(purchase));
-  // }
-
-  // src/purchases/purchases.service.ts
 
   async createPurchase(userId: string, createPurchaseDto: CreatePurchaseDto): Promise<PurchaseResponseDto[]> {
+    console.log('--- CHECKING IF THE NEW CODE IS RUNNING ---');
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
       throw new Error('User not found');
@@ -104,6 +69,10 @@ export class PurchasesService {
 
     return savedPurchases.map(purchase => new PurchaseResponseDto(purchase));
   }
+
+  // src/purchases/purchases.service.ts
+
+
 
   // async createPurchase(userId: string, createPurchaseDto: CreatePurchaseDto): Promise<PurchaseResponseDto[]> {
   //   const user = await this.userRepository.findOne({ where: { id: userId } });
