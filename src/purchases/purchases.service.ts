@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Connection, Repository } from 'typeorm';
 // import { Purchase } from './purchase.entity';
 import { CreatePurchaseDto } from './dto/create-purchase.dto';
 // import { User } from '../users/user.entity';
@@ -19,57 +19,109 @@ export class PurchasesService {
     private readonly lessonRepository: Repository<Lesson>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly connection: Connection
   ) { }
 
 
 
+  // async createPurchase(userId: string, createPurchaseDto: CreatePurchaseDto): Promise<PurchaseResponseDto[]> {
+  //   console.log('--- CHECKING IF THE NEW CODE IS RUNNING ---');
+  //   const user = await this.userRepository.findOne({ where: { id: userId } });
+  //   if (!user) {
+  //     throw new Error('User not found');
+  //   }
+
+  //   const purchases: Purchase[] = [];
+
+  //   // Process each item in the cart
+  //   for (const item of createPurchaseDto.items) {
+  //     const lesson = await this.lessonRepository.findOne({
+  //       where: { id: item.lessonId },
+  //       relations: ['teacher'],
+  //     });
+
+  //     if (!lesson) {
+  //       throw new Error(`Lesson with ID ${item.lessonId} not found`);
+  //     }
+
+  //     const purchase = this.purchaseRepository.create({
+  //       amount: lesson.price,
+  //       user,
+  //       lesson,
+  //     });
+
+  //     purchases.push(purchase);
+
+  //     // --- THIS IS THE CRITICAL PART ---
+  //     // We will now see if this block succeeds or fails
+  //     try {
+  //       console.log(`ATTEMPTING to increment salesCount for lesson ID: ${lesson.id}`);
+  //       const result = await this.lessonRepository.increment({ id: lesson.id }, 'salesCount', 1);
+  //       console.log(`SUCCESSFULLY incremented salesCount. Result:`, result);
+  //     } catch (error) {
+  //       // If there's an error, it will be logged here
+  //       console.error(`FAILED to increment salesCount for lesson ID: ${lesson.id}`, error);
+  //     }
+  //     // --- END OF CRITICAL PART ---
+  //   }
+
+  //   // Save all purchases in a transaction
+  //   const savedPurchases = await this.purchaseRepository.save(purchases);
+
+  //   return savedPurchases.map(purchase => new PurchaseResponseDto(purchase));
+  // }
+
+
+  // In purchases.service.ts
   async createPurchase(userId: string, createPurchaseDto: CreatePurchaseDto): Promise<PurchaseResponseDto[]> {
-    console.log('--- CHECKING IF THE NEW CODE IS RUNNING ---');
-    const user = await this.userRepository.findOne({ where: { id: userId } });
-    if (!user) {
-      throw new Error('User not found');
-    }
+    const queryRunner = this.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-    const purchases: Purchase[] = [];
+    try {
+      const purchases: Purchase[] = [];
+      const user = await this.userRepository.findOne({ where: { id: userId } });
+      if (!user) throw new Error('User not found');
 
-    // Process each item in the cart
-    for (const item of createPurchaseDto.items) {
-      const lesson = await this.lessonRepository.findOne({
-        where: { id: item.lessonId },
-        relations: ['teacher'],
-      });
+      for (const item of createPurchaseDto.items) {
+        const lesson = await queryRunner.manager.findOne(Lesson, {
+          where: { id: item.lessonId },
+          lock: { mode: "pessimistic_write" }
+        });
+        if (!lesson) throw new Error(`Lesson ${item.lessonId} not found`);
 
-      if (!lesson) {
-        throw new Error(`Lesson with ID ${item.lessonId} not found`);
+        // PROPER WAY TO INCREMENT - Using query builder
+        await queryRunner.manager
+          .createQueryBuilder()
+          .update(Lesson)
+          .set({
+            salesCount: () => "salesCount + 1"
+          })
+          .where("id = :id", { id: lesson.id })
+          .execute();
+
+        // Create purchase
+        const purchase = new Purchase();
+        purchase.amount = lesson.price;
+        purchase.user = user;
+        purchase.lesson = lesson;
+        purchase.studentId = userId;
+        purchase.lessonId = lesson.id;
+        purchases.push(purchase);
       }
 
-      const purchase = this.purchaseRepository.create({
-        amount: lesson.price,
-        user,
-        lesson,
-      });
+      await queryRunner.manager.save(purchases);
+      await queryRunner.commitTransaction();
+      return purchases.map(p => new PurchaseResponseDto(p));
 
-      purchases.push(purchase);
-
-      // --- THIS IS THE CRITICAL PART ---
-      // We will now see if this block succeeds or fails
-      try {
-        console.log(`ATTEMPTING to increment salesCount for lesson ID: ${lesson.id}`);
-        const result = await this.lessonRepository.increment({ id: lesson.id }, 'salesCount', 1);
-        console.log(`SUCCESSFULLY incremented salesCount. Result:`, result);
-      } catch (error) {
-        // If there's an error, it will be logged here
-        console.error(`FAILED to increment salesCount for lesson ID: ${lesson.id}`, error);
-      }
-      // --- END OF CRITICAL PART ---
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      console.error('Purchase failed:', err);
+      throw err;
+    } finally {
+      await queryRunner.release();
     }
-
-    // Save all purchases in a transaction
-    const savedPurchases = await this.purchaseRepository.save(purchases);
-
-    return savedPurchases.map(purchase => new PurchaseResponseDto(purchase));
   }
-
   // src/purchases/purchases.service.ts
 
 

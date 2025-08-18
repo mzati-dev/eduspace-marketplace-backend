@@ -45,6 +45,8 @@ export class Purchase {
 
 
 
+    // @Column({ type: 'int', default: 0 })
+    // salesCount: number;
     // @ManyToOne(() => Lesson, lesson => lesson.purchases)
     // @JoinColumn({ name: 'lessonId' })
     // lesson: Lesson;
