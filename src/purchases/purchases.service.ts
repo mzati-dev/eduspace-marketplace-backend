@@ -175,4 +175,42 @@ export class PurchasesService {
 
     return purchases.map(purchase => new PurchaseResponseDto(purchase));
   }
+
+  // Add these two new methods inside your PurchasesService class
+
+  /**
+   * Creates a PENDING purchase record when a payment is started.
+   */
+  async createPendingPurchaseForPayment(data: {
+    chargeId: string;
+    studentId: string;
+    lessonId: string;
+    amount: number;
+  }): Promise<Purchase> {
+    const purchase = this.purchaseRepository.create({
+      ...data,
+      status: 'pending',
+    });
+    return this.purchaseRepository.save(purchase);
+  }
+
+  /**
+   * Finalizes the purchase when the webhook confirms payment.
+   */
+  async finalizePurchase(chargeId: string): Promise<void> {
+    const purchase = await this.purchaseRepository.findOne({ where: { chargeId } });
+
+    if (!purchase || purchase.status === 'completed') {
+      console.log('Purchase not found or already completed.');
+      return;
+    }
+
+    // This is where you can add logic like incrementing sales count if needed
+    // For now, we just mark it as complete
+    purchase.status = 'completed';
+    await this.purchaseRepository.save(purchase);
+
+    // You would also increment the lesson sales count here
+    await this.lessonRepository.increment({ id: purchase.lessonId }, 'salesCount', 1);
+  }
 }

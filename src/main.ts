@@ -7,8 +7,16 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // This is the fix for large file uploads
-  app.use(json({ limit: '250mb' }));
+  // Combine limit and verify into a single json middleware call
+  app.use(json({
+    limit: '250mb',
+    verify: (req: any, res, buf) => {
+      req.rawBody = buf;
+    },
+  }));
   app.use(urlencoded({ extended: true, limit: '250mb' }));
+
+
 
   // This is for your frontend to communicate with your backend
   app.enableCors({

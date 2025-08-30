@@ -53,6 +53,11 @@ export class Purchase {
 
     // @Column()
     // lessonId: string;
+    @Column({ nullable: true }) // <-- THIS IS THE FIX
+    chargeId: string;
+
+    @Column({ default: 'completed' }) // Set a default for existing rows
+    status: string;
 }
 
 // import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn } from 'typeorm';

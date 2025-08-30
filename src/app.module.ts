@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ServeStaticModule } from '@nestjs/serve-static';
@@ -12,6 +12,7 @@ import { RatingsModule } from './ratings/ratings.module';
 import { CommonModule } from './common/common.module';
 import { StudentModule } from './student/student.module';
 import { TeacherModule } from './teacher/teacher.module';
+
 
 @Module({
   imports: [
@@ -38,8 +39,6 @@ import { TeacherModule } from './teacher/teacher.module';
       serveRoot: '/uploads',
     }),
 
-    // The MulterModule.register() has been removed.
-
     AuthModule,
     UsersModule,
     LessonsModule,
@@ -48,6 +47,8 @@ import { TeacherModule } from './teacher/teacher.module';
     CommonModule,
     StudentModule,
     TeacherModule,
+    // PaymentModule,
+    forwardRef(() => PaymentModule),
   ],
   controllers: [],
   providers: [],
@@ -208,6 +209,7 @@ export class AppModule { }
 // // import { CommonModule } from './common/common.module';
 // // import { StudentModule } from './student/student.module';
 // // import { TeacherModule } from './teacher/teacher.module';
+import { PaymentModule } from './payment/payment.module';
 
 // // @Module({
 // //   imports: [
