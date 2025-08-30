@@ -42,6 +42,45 @@ export class User {
     @Column({ default: false })
     isVerified: boolean;
 
+    // --- START: NEW CODE FOR TEACHER PAYOUTS ---
+
+    /**
+     * The teacher's preferred payout method. Can be 'bank' or 'mobile_money'.
+     * This will be NULL for students.
+     */
+    @Column({ type: 'varchar', nullable: true })
+    payoutMethod: 'bank' | 'mobile_money' | null;
+
+    /**
+     * The full name on the teacher's bank or mobile money account.
+     * This will be NULL for students.
+     */
+    @Column({ nullable: true })
+    accountName: string;
+
+    /**
+     * The teacher's bank account number or mobile money number.
+     * This will be NULL for students.
+     */
+    @Column({ nullable: true })
+    accountNumber: string;
+
+    /**
+     * The unique ID for the teacher's bank (from PayChangu's /banks endpoint).
+     * This will be NULL for students and for teachers who choose mobile money.
+     */
+    @Column({ nullable: true })
+    bankUuid: string;
+
+    /**
+     * The unique ID for the teacher's mobile money provider (Airtel or Mpamba).
+     * This will be NULL for students and for teachers who choose bank transfer.
+     */
+    @Column({ nullable: true })
+    mobileMoneyOperatorRefId: string;
+
+    // --- END: NEW CODE FOR TEACHER PAYOUTS ---
+
     // 🔹 Inverse side of Lesson.teacher
     @OneToMany(() => Lesson, (lesson) => lesson.teacher)
     lessons: Lesson[];

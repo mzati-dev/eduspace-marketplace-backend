@@ -36,12 +36,12 @@ export class Purchase {
     // purchaseDate: Date;
 
 
-    @ManyToOne(() => User, user => user.purchases)
-    @JoinColumn({ name: 'userId' })
-    user: User;
+    // @ManyToOne(() => User, user => user.purchases)
+    // @JoinColumn({ name: 'userId' })
+    // user: User;
 
-    @Column()
-    userId: string;
+    // @Column()
+    // userId: string;
 
 
 

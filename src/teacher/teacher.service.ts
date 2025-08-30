@@ -265,5 +265,25 @@ export class TeacherService {
   //         name: p.user.name
   //     }));
   // }
+  // --- START: NEW METHOD FOR PAYMENT GATEWAY ---
+
+  /**
+   * Finds a teacher by the ID of a lesson they have created.
+   * This is called by PaymentService to identify who to pay.
+   */
+  async findByLessonId(lessonId: string): Promise<User | null> {
+    const lesson = await this.lessonsRepository.findOne({
+      where: { id: lessonId },
+      relations: ['teacher'], // This assumes your Lesson entity has a 'teacher' relation
+    });
+
+    if (!lesson || !lesson.teacher) {
+      return null;
+    }
+
+    return lesson.teacher;
+  }
+
+  // --- END: NEW METHOD FOR PAYMENT GATEWAY ---
 }
 

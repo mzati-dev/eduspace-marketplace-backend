@@ -1,6 +1,6 @@
 // src/auth/dto/register.dto.ts
 import { IsString, IsEmail, IsNotEmpty, IsEnum } from 'class-validator';
-import { UserRole } from 'src/users/entities/user.entity'; // Import UserRole
+import { UserRole } from 'src/users/entities/user.entity';
 
 export class RegisterDto {
     @IsString()
@@ -26,6 +26,6 @@ export class RegisterDto {
     @IsNotEmpty()
     gender: string;
 
-    @IsEnum(UserRole) // Use the IsEnum validator
-    role: UserRole;  // Use UserRole as the type
+    @IsEnum(UserRole)
+    role: UserRole;
 }
