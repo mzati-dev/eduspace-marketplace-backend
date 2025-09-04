@@ -94,6 +94,9 @@ export class User {
 
     @OneToMany(() => Rating, rating => rating.user)
     ratings: Rating[];
+
+    @Column({ type: 'varchar', nullable: true, default: null })
+    profileImageUrl: string;
 }
 
 // // src/users/entities/user.entity.ts
