@@ -1,5 +1,5 @@
 // src/auth/auth.controller.ts
-import { Controller, Post, Body, HttpCode, HttpStatus, UseGuards, Get, Request } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, UseGuards, Get, Request, Patch, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -8,6 +8,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 // import { GetUser } from './get-user.decorator'; // 👈 1. Import the GetUser decorator
 import { User } from '../users/entities/user.entity'; // 👈 2. Import the User entity
 import { GetUser } from './decorators/get-user.decorator';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 
 @Controller('auth')
@@ -53,4 +54,18 @@ export class AuthController {
       user: req.user,
     };
   }
+
+  // --- ADD THIS NEW ENDPOINT ---
+  @Patch('change-password')
+  @UseGuards(JwtAuthGuard) // Protects the route
+  @HttpCode(HttpStatus.OK)
+  async changePassword(
+    @Req() req: any,
+    @Body() changePasswordDto: ChangePasswordDto,
+  ) {
+    const userId = req.user.id; // Get user ID from the JWT token
+    await this.authService.changePassword(userId, changePasswordDto);
+    return { message: 'Password changed successfully.' };
+  }
+  // --- END OF NEW ENDPOINT ---
 }

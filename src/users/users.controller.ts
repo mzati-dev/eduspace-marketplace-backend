@@ -1,11 +1,12 @@
 // src/users/users.controller.ts
-import { Controller, Get, Param, Post, Body, HttpCode, HttpStatus, UseGuards, UseInterceptors, Req, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Param, Post, Body, HttpCode, HttpStatus, UseGuards, UseInterceptors, Req, UploadedFile, Patch } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')
 export class UsersController {
@@ -66,5 +67,16 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   async findById(@Param('id') id: string): Promise<User | null> {
     return this.usersService.findById(id);
+  }
+
+  @Patch('profile') // Handles PATCH requests to /users/profile
+  @UseGuards(JwtAuthGuard) // Protects the route
+  @HttpCode(HttpStatus.OK)
+  async updateProfile(
+    @Req() req: any, // Use `any` for simplicity or create a proper Request type
+    @Body() updateUserDto: UpdateUserDto, // Validate the incoming data
+  ): Promise<User> {
+    const userId = req.user.id; // Get the user's ID from the token payload
+    return this.usersService.updateProfile(userId, updateUserDto);
   }
 }

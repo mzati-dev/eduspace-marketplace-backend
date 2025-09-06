@@ -5,6 +5,7 @@ import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -85,5 +86,32 @@ export class AuthService {
 
     // TODO: Implement actual email sending
     return { message: 'Password reset link sent' };
+  }
+
+  async changePassword(userId: string, changePasswordDto: ChangePasswordDto): Promise<void> {
+    const user = await this.usersService.findById(userId);
+
+    // --- ADD THIS CHECK ---
+    // If no user is found, throw an error and stop.
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+    // --- END OF CHECK ---
+
+    // 1. Check if the provided current password is correct
+    const isPasswordMatching = await bcrypt.compare(
+      changePasswordDto.currentPassword,
+      user.password, // Now TypeScript knows 'user' is not null here
+    );
+
+    if (!isPasswordMatching) {
+      throw new UnauthorizedException('Wrong current password');
+    }
+
+    // 2. Hash the new password
+    const hashedNewPassword = await bcrypt.hash(changePasswordDto.newPassword, 10);
+
+    // 3. Update the user's password in the database
+    await this.usersService.updatePassword(userId, hashedNewPassword);
   }
 }
