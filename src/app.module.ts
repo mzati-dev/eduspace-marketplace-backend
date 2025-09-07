@@ -47,8 +47,11 @@ import { TeacherModule } from './teacher/teacher.module';
     CommonModule,
     StudentModule,
     TeacherModule,
-    // PaymentModule,
     forwardRef(() => PaymentModule),
+    forwardRef(() => NotificationsModule),
+    forwardRef(() => AiModule),
+    forwardRef(() => ChatModule),
+
   ],
   controllers: [],
   providers: [],
@@ -210,6 +213,9 @@ export class AppModule { }
 // // import { StudentModule } from './student/student.module';
 // // import { TeacherModule } from './teacher/teacher.module';
 import { PaymentModule } from './payment/payment.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { AiModule } from './ai/ai.module';
+import { ChatModule } from './chat/chat.module';
 
 // // @Module({
 // //   imports: [

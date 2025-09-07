@@ -1,8 +1,9 @@
 // src/users/entities/user.entity.ts
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToMany } from 'typeorm';
 import { Purchase } from '../../purchases/entities/purchase.entity';
 import { Rating } from 'src/ratings/entities/rating.entity';
 import { Lesson } from 'src/lessons/entities/lesson.entity';
+import { Conversation } from 'src/chat/entities/conversation.entity';
 
 
 export enum UserRole {
@@ -32,6 +33,8 @@ export class User {
 
     @Column()
     gender: string;
+
+
 
     @Column({
         type: 'enum',
@@ -97,6 +100,10 @@ export class User {
 
     @Column({ type: 'varchar', nullable: true, default: null })
     profileImageUrl: string;
+
+    // --- 2. ADD THIS NEW RELATIONSHIP ---
+    @ManyToMany(() => Conversation, conversation => conversation.participants)
+    conversations: Conversation[];
 }
 
 // // src/users/entities/user.entity.ts

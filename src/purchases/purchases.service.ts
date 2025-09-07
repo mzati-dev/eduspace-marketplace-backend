@@ -6,6 +6,8 @@ import { PurchaseResponseDto } from './dto/purchase-response.dto';
 import { Purchase } from './entities/purchase.entity';
 import { Lesson } from 'src/lessons/entities/lesson.entity';
 import { User } from 'src/users/entities/user.entity';
+import { NotificationsService } from 'src/notifications/notifications.service';
+import { AiService } from 'src/ai/ai.service';
 
 @Injectable()
 export class PurchasesService {
@@ -16,7 +18,9 @@ export class PurchasesService {
     private readonly lessonRepository: Repository<Lesson>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    private readonly connection: Connection
+    private readonly connection: Connection,
+    private readonly notificationsService: NotificationsService,
+    private readonly aiService: AiService,
   ) { }
 
   /**
@@ -58,6 +62,18 @@ export class PurchasesService {
         purchase.lesson = lesson;
         purchase.studentId = userId;
         purchase.lessonId = lesson.id;
+
+        // --- ADD THIS BLOCK TO GENERATE A NOTIFICATION ---
+        const prompt = `Generate a short, friendly notification (under 15 words) for a teacher named ${lesson.teacher.name} because a student named ${user.name} just bought their lesson titled '${lesson.title}'.`;
+        const aiDescription = await this.aiService.generateNotification(prompt);
+
+        await this.notificationsService.create({
+          userId: lesson.teacher.id,
+          type: 'sale',
+          title: 'New Lesson Sale!',
+          description: aiDescription,
+        });
+        // --- END OF NOTIFICATION BLOCK ---
         purchases.push(purchase);
       }
 
