@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Req, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Req, UseGuards, HttpCode, HttpStatus, Put } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CreateConversationDto } from './dto/create-conversation.dto';
@@ -9,6 +9,20 @@ import { CreateConversationDto } from './dto/create-conversation.dto';
 export class ChatController {
   constructor(private readonly chatService: ChatService) { }
 
+
+  // --- ADD THIS ENDPOINT ---
+  @Get('unread-count')
+  getTotalUnreadCount(@Req() req) {
+    return this.chatService.getTotalUnreadCount(req.user.id);
+  }
+
+  // --- ADD THIS ENDPOINT ---
+  @Put('conversations/:id/read')
+  @HttpCode(HttpStatus.OK)
+  markAsRead(@Req() req, @Param('id') id: string) {
+    // req.user.id is from the JWT token
+    return this.chatService.markConversationAsRead(id, req.user.id);
+  }
   /**
    * @route   POST /chat/conversations
    * @desc    Creates a new conversation with another user

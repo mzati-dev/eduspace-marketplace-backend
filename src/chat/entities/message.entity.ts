@@ -7,18 +7,21 @@ export class Message {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    // This is the property that was missing
+
     @Column('text')
     content: string;
 
     @CreateDateColumn()
     timestamp: Date;
 
-    @ManyToOne(() => User, { eager: true }) // eager loads the author with the message
+    @ManyToOne(() => User, { eager: true })
     author: User;
 
     @ManyToOne(() => Conversation, conv => conv.messages)
     conversation: Conversation;
+
+    @Column({ type: 'boolean', default: false })
+    isRead: boolean;
 }
 
 
