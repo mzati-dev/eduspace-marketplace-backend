@@ -1,5 +1,5 @@
 // src/users/users.controller.ts
-import { Controller, Get, Param, Post, Body, HttpCode, HttpStatus, UseGuards, UseInterceptors, Req, UploadedFile, Patch } from '@nestjs/common';
+import { Controller, Get, Param, Post, Body, HttpCode, HttpStatus, UseGuards, UseInterceptors, Req, UploadedFile, Patch, Res, NotFoundException, Delete } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -7,10 +7,35 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Request, Response } from 'express';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
+
+  //Download data route
+  @Get('download-data')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  // 👇 **THE CHANGE IS HERE: Just use `any`**
+  async downloadMyData(@Req() req: any, @Res({ passthrough: true }) res: Response) {
+    // Now you can access `req.user.id` without TypeScript complaining.
+    const userId = req.user.id;
+
+    // ... the rest of your code remains the same
+    const user = await this.usersService.findById(userId);
+
+    if (!user) {
+      throw new NotFoundException('User data not found.');
+    }
+
+    const { password, ...dataToReturn } = user;
+
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', 'attachment; filename="my-data.json"');
+
+    return JSON.stringify(dataToReturn, null, 2);
+  }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -79,4 +104,21 @@ export class UsersController {
     const userId = req.user.id; // Get the user's ID from the token payload
     return this.usersService.updateProfile(userId, updateUserDto);
   }
+
+  // === START: MODIFIED DELETE ACCOUNT ENDPOINT ===
+  @UseGuards(JwtAuthGuard)
+  @Delete('delete-account')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteAccount(@Req() req: any) { // <-- Changed to 'any' to match your style.
+    // Your JwtAuthGuard attaches the user payload to the request.
+    // We get the user's ID directly from it.
+    const userId = req.user.id; // <-- Changed to '.id' to match your other routes.
+
+    // Call the service method to perform the deletion.
+    await this.usersService.deleteAccount(userId);
+
+    // A 204 status is returned automatically on success.
+  }
+  // === END: MODIFIED DELETE ACCOUNT ENDPOINT ===
+
 }

@@ -66,4 +66,22 @@ export class UsersService {
   async updatePassword(userId: string, newHashedPassword: string): Promise<void> {
     await this.usersRepository.update(userId, { password: newHashedPassword });
   }
+
+  // === START: NEW DELETE ACCOUNT METHOD ===
+  /**
+   * Deletes a user account from the database.
+   * @param userId The ID of the user to delete.
+   * @returns A promise that resolves when the user has been deleted.
+   */
+  async deleteAccount(userId: string): Promise<void> {
+    // The `delete` method from TypeORM is efficient for this.
+    // It finds the entity by the given ID and removes it.
+    const result = await this.usersRepository.delete(userId);
+
+    // If no rows were affected, it means the user was not found.
+    if (result.affected === 0) {
+      throw new NotFoundException(`User with ID "${userId}" not found`);
+    }
+  }
+
 }

@@ -101,8 +101,15 @@ export class User {
     @Column({ type: 'varchar', nullable: true, default: null })
     profileImageUrl: string;
 
-    // --- 2. ADD THIS NEW RELATIONSHIP ---
-    @ManyToMany(() => Conversation, conversation => conversation.participants)
+    // // --- 2. ADD THIS NEW RELATIONSHIP ---
+    // @ManyToMany(() => Conversation, conversation => conversation.participants)
+    // conversations: Conversation[];
+    // --- MODIFICATION IS HERE ---
+    @ManyToMany(() => Conversation, conversation => conversation.participants, {
+        // This line tells the database to automatically delete this user's
+        // records from the join table when the user is deleted.
+        onDelete: 'CASCADE',
+    })
     conversations: Conversation[];
 }
 

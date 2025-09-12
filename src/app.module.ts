@@ -1,5 +1,5 @@
 import { forwardRef, Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
@@ -16,6 +16,9 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { AiModule } from './ai/ai.module';
 import { ChatModule } from './chat/chat.module';
 import { ProfileModule } from './profile/profile.module';
+
+import { MailerModule } from '@nestjs-modules/mailer';
+import { SupportModule } from './supportmodule/supportmodule.module';
 
 
 @Module({
@@ -38,6 +41,27 @@ import { ProfileModule } from './profile/profile.module';
       }),
     }),
 
+    // --- ADD THIS ENTIRE MAILERMODULE CONFIGURATION ---
+    MailerModule.forRootAsync({
+      imports: [ConfigModule], // Make sure ConfigModule is imported
+      useFactory: async (configService: ConfigService) => ({
+        transport: {
+          host: configService.get('SMTP_HOST'),
+          port: configService.get('SMTP_PORT'),
+          secure: false,
+          auth: {
+            user: configService.get('SMTP_USER'),
+            pass: configService.get('SMTP_PASS'),
+          },
+        },
+        defaults: {
+          from: `"Annex Support Team" <${configService.get('MAIL_FROM')}>`,
+        },
+      }),
+      inject: [ConfigService],
+    }),
+    // --- END OF NEW MAILERMODULE CONFIGURATION ---
+
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'uploads'),
       serveRoot: '/uploads',
@@ -56,6 +80,8 @@ import { ProfileModule } from './profile/profile.module';
     forwardRef(() => AiModule),
     forwardRef(() => ChatModule),
     forwardRef(() => ProfileModule),
+    forwardRef(() => SupportModule),
+
 
 
 
