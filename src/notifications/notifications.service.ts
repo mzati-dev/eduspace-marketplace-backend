@@ -56,4 +56,19 @@ export class NotificationsService {
     });
     return this.notificationsRepository.save(notification);
   }
+
+  // Add this function inside your NotificationsService class
+
+  /**
+   * Gets the total count of unread notifications for a specific user.
+   */
+  async getUnreadCount(userId: string): Promise<{ count: number }> {
+    const count = await this.notificationsRepository.count({
+      where: {
+        user: { id: userId },
+        isRead: false,
+      },
+    });
+    return { count };
+  }
 }

@@ -23,4 +23,10 @@ export class NotificationsController {
   async markAllAsRead(@Req() req: any) {
     return this.notificationsService.markAllAsRead(req.user.id);
   }
+  // Add this endpoint inside your NotificationsController class
+
+  @Get('unread-count')
+  async getUnreadCount(@Req() req: any) {
+    return this.notificationsService.getUnreadCount(req.user.id);
+  }
 }
