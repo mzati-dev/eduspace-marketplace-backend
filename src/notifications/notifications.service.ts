@@ -71,4 +71,18 @@ export class NotificationsService {
     });
     return { count };
   }
+
+  // V V V V V ADD THIS NEW FUNCTION HERE V V V V V
+  /**
+   * Creates multiple notifications at once. This is more efficient than
+   * calling the 'create' method in a loop.
+   */
+  async createMany(payloads: CreateNotificationPayload[]): Promise<Notification[]> {
+    const notifications = this.notificationsRepository.create(payloads.map(p => ({
+      ...p,
+      user: { id: p.userId } as User,
+    })));
+    return this.notificationsRepository.save(notifications);
+  }
+  // ^ ^ ^ ^ ^ END OF THE NEW FUNCTION ^ ^ ^ ^ ^
 }

@@ -2,7 +2,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Lesson } from '../lessons/entities/lesson.entity';
+import { Lesson, LessonStatus } from '../lessons/entities/lesson.entity';
 import { Purchase } from '../purchases/entities/purchase.entity';
 // --- START: MODIFIED CODE ---
 // We need the User repository to get the student object for creating a purchase
@@ -28,6 +28,7 @@ export class StudentService {
   // =======================================================
   async getAvailableLessons(): Promise<any[]> {
     const lessons = await this.lessonsRepository.find({
+      where: { status: LessonStatus.APPROVED },
       relations: ['teacher'], // make sure "teacher" is in Lesson entity
     });
 

@@ -19,6 +19,9 @@ import { ProfileModule } from './profile/profile.module';
 
 import { MailerModule } from '@nestjs-modules/mailer';
 import { SupportModule } from './supportmodule/supportmodule.module';
+import { TasksModule } from './tasks/tasks.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { AdminModule } from './admin/admin.module';
 
 
 @Module({
@@ -27,6 +30,9 @@ import { SupportModule } from './supportmodule/supportmodule.module';
       isGlobal: true,
       envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
     }),
+    // V V V V V ADD THIS LINE HERE V V V V V
+    ScheduleModule.forRoot(),
+    // ^ ^ ^ ^ ^ END OF THE NEW LINE ^ ^ ^ ^ ^
     TypeOrmModule.forRootAsync({
       useFactory: () => ({
         type: 'postgres',
@@ -81,6 +87,8 @@ import { SupportModule } from './supportmodule/supportmodule.module';
     forwardRef(() => ChatModule),
     forwardRef(() => ProfileModule),
     forwardRef(() => SupportModule),
+    TasksModule,
+    AdminModule,
 
 
 

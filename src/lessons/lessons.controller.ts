@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, Req, UseInterceptors, UploadedFile, Res, NotFoundException, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, Req, UseInterceptors, UploadedFile, Res, NotFoundException, UseGuards, Patch, HttpCode, HttpStatus } from '@nestjs/common';
 import { Response } from 'express';
 import { createReadStream, statSync } from 'fs';
 import { join } from 'path';
@@ -7,6 +7,8 @@ import { CreateLessonDto, UpdateLessonDto } from './dto/create-lesson.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { multerOptions } from '../config/multer.config';
+import { AdminGuard } from 'src/auth/guards/admin.guard';
+import { LessonStatus } from './entities/lesson.entity';
 
 @Controller('lessons')
 export class LessonsController {
@@ -18,6 +20,35 @@ export class LessonsController {
   create(@UploadedFile() videoFile: Express.Multer.File, @Body() createLessonDto: CreateLessonDto, @Req() req) {
     return this.lessonService.create({ ...createLessonDto, videoFile }, req.user);
   }
+
+
+  // --- 2. ADD THE 'findAll' ENDPOINT FOR STUDENTS ---
+  /**
+   * This is the public endpoint for anyone (especially students)
+   * to get the list of all APPROVED lessons.
+   */
+  // @Get()
+  // findAll() {
+  //   return this.lessonService.findAll();
+  // }
+  @Get()
+  findAll() {
+    // 2. Add this filter to only return approved lessons
+    return this.lessonService.findAll({ where: { status: LessonStatus.APPROVED } });
+  }
+  // --- END OF 'findAll' ENDPOINT ---
+
+  // --- 3. ADD THE 'findPendingLessons' ENDPOINT FOR ADMINS ---
+  /**
+   * This is a protected endpoint for admins to get the list
+   * of lessons that are waiting for approval.
+   */
+  @Get('pending')
+  @UseGuards(JwtAuthGuard, AdminGuard) // This ensures only logged-in admins can access it
+  findPendingLessons() {
+    return this.lessonService.findPendingLessons();
+  }
+  // --- END OF 'findPendingLessons' ENDPOINT ---
 
   @Put(':id')
   @UseGuards(JwtAuthGuard)
@@ -63,6 +94,32 @@ export class LessonsController {
       throw error;
     }
   }
+
+  // --- 4. ADD THE 'approveLesson' ENDPOINT FOR ADMINS ---
+  /**
+   * This is a protected endpoint for an admin to approve a lesson.
+   * It changes the lesson's status from 'pending' to 'approved'.
+   */
+  @Patch(':id/approve')
+  @UseGuards(JwtAuthGuard, AdminGuard) // This ensures only logged-in admins can access it
+  @HttpCode(HttpStatus.OK)
+  approveLesson(@Param('id') id: string) {
+    return this.lessonService.approveLesson(id);
+  }
+  // --- END OF 'approveLesson' ENDPOINT ---
+
+  // --- V V V V V ADD THE NEW REJECT ENDPOINT HERE V V V V V ---
+  /**
+   * This is a protected endpoint for an admin to reject a lesson.
+   * It changes the lesson's status from 'pending' to 'rejected'.
+   */
+  @Patch(':id/reject')
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @HttpCode(HttpStatus.OK)
+  rejectLesson(@Param('id') id: string) {
+    return this.lessonService.rejectLesson(id);
+  }
+  // --- ^ ^ ^ ^ ^ END OF THE NEW REJECT ENDPOINT ^ ^ ^ ^ ^ ---
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)

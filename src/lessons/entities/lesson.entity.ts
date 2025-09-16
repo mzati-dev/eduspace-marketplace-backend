@@ -3,6 +3,15 @@ import { User } from 'src/users/entities/user.entity';
 import { Rating } from 'src/ratings/entities/rating.entity';
 import { Purchase } from 'src/purchases/entities/purchase.entity';
 
+
+// V V V V V 1. ADD THIS ENUM AT THE TOP V V V V V
+export enum LessonStatus {
+    PENDING = 'pending',
+    APPROVED = 'approved',
+    REJECTED = 'rejected',
+}
+// ^ ^ ^ ^ ^ END OF THE NEW ENUM ^ ^ ^ ^ ^
+
 @Entity()
 export class Lesson {
     @PrimaryGeneratedColumn('uuid')
@@ -50,6 +59,15 @@ export class Lesson {
 
     @OneToMany(() => Purchase, (purchase) => purchase.lesson)
     purchases: Purchase[];
+
+    // V V V V V 2. ADD THIS NEW COLUMN V V V V V
+    @Column({
+        type: 'enum',
+        enum: LessonStatus,
+        default: LessonStatus.PENDING, // New lessons will automatically be pending
+    })
+    status: LessonStatus;
+    // ^ ^ ^ ^ ^ END OF THE NEW COLUMN ^ ^ ^ ^ ^
 
 }
 

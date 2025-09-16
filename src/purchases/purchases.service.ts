@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Connection, Repository } from 'typeorm';
 import { CreatePurchaseDto } from './dto/create-purchase.dto';
@@ -19,6 +19,8 @@ export class PurchasesService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly connection: Connection,
+    // V V V V V THIS IS THE FIX V V V V V
+    @Inject(forwardRef(() => NotificationsService)) // 2. ADD THIS DECORATOR
     private readonly notificationsService: NotificationsService,
     private readonly aiService: AiService,
   ) { }
@@ -63,21 +65,41 @@ export class PurchasesService {
         purchase.studentId = userId;
         purchase.lessonId = lesson.id;
 
-        // --- ADD THIS BLOCK TO GENERATE A NOTIFICATION ---
-        const prompt = `Generate a short, friendly notification (under 15 words) for a teacher named ${lesson.teacher.name} because a student named ${user.name} just bought their lesson titled '${lesson.title}'.`;
-        const aiDescription = await this.aiService.generateNotification(prompt);
+        // // --- ADD THIS BLOCK TO GENERATE A NOTIFICATION ---
+        // const prompt = `Generate a short, friendly notification (under 15 words) for a teacher named ${lesson.teacher.name} because a student named ${user.name} just bought their lesson titled '${lesson.title}'.`;
+        // const aiDescription = await this.aiService.generateNotification(prompt);
 
-        await this.notificationsService.create({
-          userId: lesson.teacher.id,
-          type: 'sale',
-          title: 'New Lesson Sale!',
-          description: aiDescription,
-        });
-        // --- END OF NOTIFICATION BLOCK ---
+        // await this.notificationsService.create({
+        //   userId: lesson.teacher.id,
+        //   type: 'sale',
+        //   title: 'New Lesson Sale!',
+        //   description: aiDescription,
+        // });
+        // // --- END OF NOTIFICATION BLOCK ---
         purchases.push(purchase);
       }
 
       await queryRunner.manager.save(purchases);
+
+      // V V V V V ADD THIS BLOCK OF CODE V V V V V
+      // After the transaction is confirmed, create notifications.
+      for (const purchase of purchases) {
+        await this.notificationsService.create({
+          userId: purchase.studentId,
+          type: 'LESSON_PURCHASE',
+          title: 'Purchase Successful!',
+          description: `Your purchase of '${purchase.lesson.title}' is complete. You can access it now in your personal library.`,
+        });
+        // V V V V V ADD THIS BLOCK OF CODE V V V V V
+        // 2. The new notification for the TEACHER
+        await this.notificationsService.create({
+          userId: purchase.lesson.teacherId, // Send to the teacher
+          type: 'LESSON_SALE',
+          title: `You've Made a Sale!`,
+          description: `Congratulations! Your lesson '${purchase.lesson.title}' was just purchased by a student.`,
+        });
+      }
+      // ^ ^ ^ ^ ^ END OF THE NEW BLOCK ^ ^ ^ ^ ^
       await queryRunner.commitTransaction();
       return purchases.map(p => new PurchaseResponseDto(p));
 
@@ -125,6 +147,24 @@ export class PurchasesService {
       ...data,
       status: 'pending',
     });
+
+    // const savedPurchase = await this.purchaseRepository.save(purchase);
+
+    // // V V V V V ADD THIS BLOCK TO NOTIFY ABOUT PENDING PAYMENT V V V V V
+    // // We need the lesson title for the description, so we fetch the lesson.
+    // const lesson = await this.lessonRepository.findOne({ where: { id: data.lessonId } });
+    // if (lesson) {
+    //   await this.notificationsService.create({
+    //     userId: data.studentId,
+    //     type: 'PAYMENT_PENDING',
+    //     title: 'Payment Processing',
+    //     description: `We've received your order for '${lesson.title}'. We'll notify you again once your payment is confirmed.`,
+    //   });
+    // }
+    // // ^ ^ ^ ^ ^ END OF THE NEW BLOCK ^ ^ ^ ^ ^
+
+    // return savedPurchase;
+
     return this.purchaseRepository.save(purchase);
   }
 
@@ -155,6 +195,34 @@ export class PurchasesService {
       await transactionalEntityManager.update(Purchase, purchase.id, { status: 'completed' });
       await transactionalEntityManager.increment(Lesson, { id: purchase.lessonId }, 'salesCount', 1);
     });
+
+    // V V V V V ADD THIS BLOCK OF CODE V V V V V
+    // Fetch the full purchase details again to get relations like the lesson title.
+    const completedPurchase = await this.purchaseRepository.findOne({
+      where: { id: purchase.id },
+      relations: ['lesson'], // This ensures 'lesson.title' is available.
+    });
+
+    if (completedPurchase) {
+      // Create the notification for the student.
+      await this.notificationsService.create({
+        userId: completedPurchase.studentId,
+        type: 'LESSON_PURCHASE',
+        title: 'Purchase Successful!',
+        description: `Your purchase of '${completedPurchase.lesson.title}' is complete. You can access it now in your personal library.`,
+      });
+
+      // V V V V V ADD THIS BLOCK OF CODE V V V V V
+      // 2. The new notification for the TEACHER
+      await this.notificationsService.create({
+        userId: completedPurchase.lesson.teacherId, // Send to the teacher
+        type: 'LESSON_SALE',
+        title: `You've Made a Sale!`,
+        description: `Congratulations! Your lesson '${completedPurchase.lesson.title}' was just purchased by a student.`,
+      });
+      // ^ ^ ^ ^ ^ END OF THE NEW BLOCK ^ ^ ^ ^ ^
+    }
+    // ^ ^ ^ ^ ^ END OF THE NEW BLOCK ^ ^ ^ ^ ^
 
     return this.findByChargeId(chargeId);
   }

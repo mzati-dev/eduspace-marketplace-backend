@@ -1,5 +1,5 @@
 // src/users/entities/user.entity.ts
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToMany, CreateDateColumn } from 'typeorm';
 import { Purchase } from '../../purchases/entities/purchase.entity';
 import { Rating } from 'src/ratings/entities/rating.entity';
 import { Lesson } from 'src/lessons/entities/lesson.entity';
@@ -9,6 +9,8 @@ import { Conversation } from 'src/chat/entities/conversation.entity';
 export enum UserRole {
     STUDENT = 'student',
     TEACHER = 'teacher',
+    ADMIN = 'admin',
+    // CHIEF_ADMIN = 'chief_admin',
 }
 @Entity()
 
@@ -100,6 +102,9 @@ export class User {
 
     @Column({ type: 'varchar', nullable: true, default: null })
     profileImageUrl: string;
+
+    @CreateDateColumn()
+    createdAt: Date;
 
     // // --- 2. ADD THIS NEW RELATIONSHIP ---
     // @ManyToMany(() => Conversation, conversation => conversation.participants)
