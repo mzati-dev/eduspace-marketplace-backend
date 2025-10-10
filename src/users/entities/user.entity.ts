@@ -47,6 +47,9 @@ export class User {
     @Column({ default: false })
     isVerified: boolean;
 
+    @Column('simple-array', { default: '' })
+    permissions: string[];
+
     // --- START: NEW CODE FOR TEACHER PAYOUTS ---
 
     /**

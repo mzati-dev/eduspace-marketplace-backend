@@ -20,7 +20,7 @@ export class AdminService {
   }
 
   async createUser(createUserDto: CreateAdminUserDto): Promise<User> {
-    const { email, password, ...userData } = createUserDto;
+    const { email, role, permissions, password, ...userData } = createUserDto;
 
     const existingUser = await this.usersRepository.findOneBy({ email });
     if (existingUser) {
@@ -30,10 +30,20 @@ export class AdminService {
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    // ⭐ ADD THIS - Set default permissions
+    let userPermissions: string[] = [];
+    if (role === 'admin') {
+      userPermissions = permissions && permissions.length > 0
+        ? permissions
+        : ['review_lessons']; // Default for new admins
+    }
+
     const newUser = this.usersRepository.create({
       ...userData,
       email,
       password: hashedPassword,
+      role,
+      permissions: userPermissions,
       isVerified: true, // Users created by an admin are verified by default
     });
 
