@@ -12,12 +12,12 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   // // V V V V V TEMPORARY CODE TO HASH A PASSWORD V V V V V
-  // const plainPassword = 'SuperSecretAdmin123!';
-  // const salt = await bcrypt.genSalt();
-  // const hashedPassword = await bcrypt.hash(plainPassword, salt);
-  // console.log('--- ADMIN HASHED PASSWORD (COPY THIS) ---');
-  // console.log(hashedPassword);
-  // console.log('-----------------------------------------');
+  const plainPassword = 'SuperSecretAdmin123!';
+  const salt = await bcrypt.genSalt();
+  const hashedPassword = await bcrypt.hash(plainPassword, salt);
+  console.log('--- ADMIN HASHED PASSWORD (COPY THIS) ---');
+  console.log(hashedPassword);
+  console.log('-----------------------------------------');
   // // ^ ^ ^ ^ ^ END OF TEMPORARY CODE ^ ^ ^ ^ ^
 
   // This is the fix for large file uploads (your existing code is good)

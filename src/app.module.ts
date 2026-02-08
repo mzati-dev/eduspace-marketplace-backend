@@ -22,6 +22,7 @@ import { SupportModule } from './supportmodule/supportmodule.module';
 import { TasksModule } from './tasks/tasks.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AdminModule } from './admin/admin.module';
+import { VideosController } from './videos/videos.controller';
 
 
 @Module({
@@ -94,7 +95,7 @@ import { AdminModule } from './admin/admin.module';
 
 
   ],
-  controllers: [],
+  controllers: [VideosController],
   providers: [],
 })
 export class AppModule { }
