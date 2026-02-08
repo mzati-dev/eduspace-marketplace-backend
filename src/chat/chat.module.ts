@@ -3,10 +3,10 @@ import { ChatService } from './chat.service';
 import { ChatController } from './chat.controller';
 import { Conversation } from './entities/conversation.entity';
 import { Message } from './entities/message.entity';
-import { User } from 'src/users/entities/user.entity';
+import { User } from '../users/entities/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthModule } from 'src/auth/auth.module';
-import { UsersModule } from 'src/users/users.module';
+import { AuthModule } from '../auth/auth.module';
+import { UsersModule } from '../users/users.module';
 import { ChatGateway } from './chat.gateway';
 
 @Module({

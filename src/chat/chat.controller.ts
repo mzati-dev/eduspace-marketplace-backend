@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Param, Req, UseGuards, HttpCode, HttpStatus, Put } from '@nestjs/common';
 import { ChatService } from './chat.service';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateConversationDto } from './dto/create-conversation.dto';
 
 // This decorator protects all routes in this controller

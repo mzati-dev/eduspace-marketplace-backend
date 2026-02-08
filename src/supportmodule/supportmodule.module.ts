@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import { SupportService } from './supportmodule.service';
 import { SupportController } from './supportmodule.controller';
 import { ConfigModule } from '@nestjs/config';
-import { AuthModule } from 'src/auth/auth.module';
-import { UsersModule } from 'src/users/users.module';
+import { AuthModule } from '../auth/auth.module';
+import { UsersModule } from '../users/users.module';
 
 
 @Module({

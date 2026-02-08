@@ -1,7 +1,7 @@
 // src/auth/guards/admin.guard.ts
 
 import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
-import { UserRole } from 'src/users/entities/user.entity';
+import { UserRole } from '../../users/entities/user.entity';
 
 @Injectable()
 export class AdminGuard implements CanActivate {

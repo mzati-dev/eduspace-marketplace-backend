@@ -8,7 +8,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { ChatService } from './chat.service';
 import { UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard'; // Assuming you have this
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'; // Assuming you have this
 
 // Allow connections from your frontend's URL
 @WebSocketGateway({ cors: { origin: 'http://localhost:3000' } })
