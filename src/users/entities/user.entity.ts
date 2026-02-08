@@ -1,8 +1,8 @@
 // src/users/entities/user.entity.ts
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToMany, CreateDateColumn } from 'typeorm';
 import { Purchase } from '../../purchases/entities/purchase.entity';
-import { Rating } from 'src/ratings/entities/rating.entity';
-import { Lesson } from 'src/lessons/entities/lesson.entity';
+import { Rating } from '../../ratings/entities/rating.entity';
+import { Lesson } from '../../lessons/entities/lesson.entity';
 import { Conversation } from 'src/chat/entities/conversation.entity';
 
 

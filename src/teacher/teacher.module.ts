@@ -2,12 +2,12 @@ import { Module } from '@nestjs/common';
 import { TeacherService } from './teacher.service';
 import { TeacherController } from './teacher.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Lesson } from 'src/lessons/entities/lesson.entity';
-import { Purchase } from 'src/purchases/entities/purchase.entity';
-import { User } from 'src/users/entities/user.entity';
+import { Lesson } from '../lessons/entities/lesson.entity';
+import { Purchase } from '../purchases/entities/purchase.entity';
+import { User } from '../users/entities/user.entity';
 // import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { AuthModule } from 'src/auth/auth.module';
-import { UsersModule } from 'src/users/users.module';
+import { AuthModule } from '../auth/auth.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [

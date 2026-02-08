@@ -6,8 +6,8 @@ import { Repository, MoreThan, LessThan, Raw, MoreThanOrEqual } from 'typeorm';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Purchase } from 'src/purchases/entities/purchase.entity';
 import { Rating } from 'src/ratings/entities/rating.entity'; // Assumes you have a Rating entity
-import { CreateNotificationPayload, NotificationsService } from 'src/notifications/notifications.service';
-import { User, UserRole } from 'src/users/entities/user.entity';
+import { CreateNotificationPayload, NotificationsService } from '../notifications/notifications.service';
+import { User, UserRole } from '../users/entities/user.entity';
 
 @Injectable()
 export class TasksService {

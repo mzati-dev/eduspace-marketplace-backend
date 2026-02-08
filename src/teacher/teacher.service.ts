@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateLessonDto } from 'src/lessons/dto/create-lesson.dto';
-import { UpdateLessonDto } from 'src/lessons/dto/update-lesson.dto';
-import { Lesson } from 'src/lessons/entities/lesson.entity';
-import { Purchase } from 'src/purchases/entities/purchase.entity';
-import { User } from 'src/users/entities/user.entity';
+import { CreateLessonDto } from '../lessons/dto/create-lesson.dto';
+import { UpdateLessonDto } from '../lessons/dto/update-lesson.dto';
+import { Lesson } from '../lessons/entities/lesson.entity';
+import { Purchase } from '../purchases/entities/purchase.entity';
+import { User } from '../users/entities/user.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()

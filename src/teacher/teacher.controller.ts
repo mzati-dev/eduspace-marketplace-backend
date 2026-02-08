@@ -1,13 +1,13 @@
 import { Controller, Get, Post, Put, Delete, UseGuards, Req, Body, Param } from '@nestjs/common';
 // import { AuthGuard } from '@nestjs/passport';
 import { TeacherService } from './teacher.service';
-import { CreateLessonDto } from 'src/lessons/dto/create-lesson.dto';
-import { UpdateLessonDto } from 'src/lessons/dto/update-lesson.dto';
+import { CreateLessonDto } from '../lessons/dto/create-lesson.dto';
+import { UpdateLessonDto } from '../lessons/dto/update-lesson.dto';
 // import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { UserRole } from 'src/users/entities/user.entity';
-import { Roles } from 'src/auth/decorators/roles.decorator';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { UserRole } from '../users/entities/user.entity';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 // import { CreateLessonDto, UpdateLessonDto } from './dto/lesson.dto';
 
 @Controller('teacher')
