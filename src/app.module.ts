@@ -22,8 +22,6 @@ import { SupportModule } from './supportmodule/supportmodule.module';
 import { TasksModule } from './tasks/tasks.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AdminModule } from './admin/admin.module';
-import { VideosController } from './videos/videos.controller';
-// import { VideosController } from '../videos/videos.controller';
 import { VideosModule } from './videos/videos.module';
 
 
@@ -98,7 +96,7 @@ import { VideosModule } from './videos/videos.module';
 
 
   ],
-  controllers: [VideosController],
+  controllers: [],
   providers: [],
 })
 export class AppModule { }
