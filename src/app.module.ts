@@ -62,7 +62,7 @@ import { VideosModule } from './videos/videos.module';
           },
         },
         defaults: {
-          from: `"Annex Support Team" <${configService.get('MAIL_FROM')}>`,
+          from: `"Eduspace Makertplace Support Team" <${configService.get('MAIL_FROM')}>`,
         },
       }),
       inject: [ConfigService],
